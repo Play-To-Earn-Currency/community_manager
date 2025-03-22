@@ -1,0 +1,15 @@
+{
+  "name": "pte_community_manager",
+  "version": "1.0",
+  "description": "A utility tool for managing play to earn community nft's",
+  "type": "module",
+  "scripts": {
+    "start": "node init.js"
+  },
+  "author": "GxperMain",
+  "license": "GPL-3.0-only",
+  "dependencies": {
+    "ethers": "^6.13.5",
+    "mysql2": "^3.12.0"
+  }
+}
