@@ -21,4 +21,4 @@ skinowner_tokens_database_ip=localhost
 skinowner_tokens_database_name=pte_wallets
 skinowner_tokens_database_username=pte_admin
 skinowner_tokens_database_password=supersecretpassword
-skinowner_tokens_database_tables=["project_skins"]
+skinowner_tokens_database_tables=["tf_skins", "nmrih_skins", "unturned_skins", "vintagestory_skins"]

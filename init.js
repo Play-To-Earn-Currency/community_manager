@@ -15,6 +15,9 @@ const helpText = `
 ### Commands
 - allowance: show the allowance from provided addreess with the contract
 - mintnft: generate a nft from the community contract, receives the nft rarity as parameter
+- availabletokens: shows the available tokens for that specific rarity
+- increasetokencount: increase the token quantity for that specific rarity (Administrator only)
+- increaseraritycount: increase the rarity quantity (Administrator only)
 - raritycost: check the cost for minting the nft in that rarity index
 - raritychance: check the chances for getting higher rarity nft in that rarity index
 - raritymaxindex: check the max rarity you can earn
@@ -34,7 +37,7 @@ await VerifyPTEManager(rl);
 const { default: MintNFT } = await import('./libs/mintnft.js');
 
 // Terminal welcome
-console.log("--PTE Community Manager 1.0--");
+console.log("--PTE Community Manager 1.1--");
 
 // Command proccess
 async function processInput(input) {
@@ -69,7 +72,7 @@ async function processInput(input) {
         console.log(`Rarity ${rarity} chance: ${cost}`);
         askForInput();
         return;
-    } else if (command.startsWith("availableTokens ")) {
+    } else if (command.startsWith("availabletokens ")) {
         const [, rarity] = command.split(" ");
         const maxIndexs = await availableTokens(rarity);
         console.log(`Max indexes available: ${maxIndexs} for rarity: ${rarity}`);

@@ -11,7 +11,7 @@ The values inside the configs.txt are measured in wei so: ``1000000000000000000`
 ### Commands
 - allowance: show the allowance from provided addreess with the contract
 - mintnft: generate a nft from the community contract, receives the nft rarity as parameter
-- availableTokens: shows the available tokens for that specific rarity
+- availabletokens: shows the available tokens for that specific rarity
 - increasetokencount: increase the token quantity for that specific rarity (Administrator only)
 - increaseraritycount: increase the rarity quantity (Administrator only)
 - raritycost: check the cost for minting the nft in that rarity index
@@ -34,3 +34,78 @@ The values inside the configs.txt are measured in wei so: ``1000000000000000000`
 - skinowner_tokens_database_username: username for database (default pte_admin)
 - skinowner_tokens_database_password: user password for database (no default, please change it)
 - skinowner_tokens_database_tables: created tables for verify skins
+
+# Simple Skins Request
+Server owners can host any http server for hosting skin equipment requests, that may be used for some games or custom applications
+
+Listening ports: 8002
+
+### Available Routes:
+All routes requires "from": "gamename", in the header
+
+### WARNING
+
+Do not use open ports for this, this is to be used only with local machines, setup a strong firewall in your system, don't let internet have access to this server.
+
+- /equippedskin, GET
+- > Receive the skinid of the player equipped skin, automatically verify if the equipped NFT belongs to the user wallet address
+- > Requires "uniqueid" as query parameter
+```
+[Available Errors]
+Status=500
+Text="Error: Server Exception"
+
+Status=500
+Text="Error: Database error"
+
+Status=400
+Text="Error: Missing required fields"
+
+Status=404
+Text="No skin equipped"
+
+Status=403
+Text="Error: You are not the owner of this NFT"
+```
+
+- /equipskin, POST
+- > Equip the skinid selected by the player, automatically verify in blockchain if the player owns any NFTs for the skinid
+- > Requires "uniqueid" and "skinid" as body parameter
+```
+[Available Errors]
+Status=500
+Text="Error: Server Exception"
+
+Status=500
+Text="Error: Database error"
+
+Status=400
+Text="Error: Missing required fields"
+
+Status=501
+Text="Error: Missing wallet on user registration"
+
+Status=401
+Text="Error: You don't have this NFT"
+
+Status=402
+Text="Error: Invalid JSON"
+```
+
+- /availableskins, GET
+- > Receives player available skinid for equip
+- > Requires "uniqueid" as query parameter
+```
+[Available Errors]
+Status=500
+Text="Error: Server Exception"
+
+Status=500
+Text="Error: Database error"
+
+Status=400
+Text="Error: Missing required fields"
+
+Status=501
+Text="Error: Missing wallet on available skins"
+```
