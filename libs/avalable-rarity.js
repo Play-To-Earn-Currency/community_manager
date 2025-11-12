@@ -1,8 +1,10 @@
 import { ethers } from "ethers";
 import Configs from "./configs-loader.js";
-const configs = Configs();
+const defaultConfigs = Configs();
 
-export default async function (index) {
+export default async function (index, additionalConfigs = {}) {
+    const configs = { ...defaultConfigs, ...additionalConfigs };
+    
     try {
         const provider = new ethers.JsonRpcProvider(configs["rpc_address"]);
         const contractAddress = configs["contract_address"];

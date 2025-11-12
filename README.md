@@ -21,7 +21,9 @@ The values inside the configs.txt are measured in wei so: ``1000000000000000000`
 
 ### Configurations
 - contract_addres: address contract from the community nft
+- > Per config
 - contract_abi: abi from the community nft
+- > Per config
 - pte_contract_address: pte address contract
 - pte_contract_abi: abi from pte
 - rpc_address: the rpc connection that will handle your requests to the block chain

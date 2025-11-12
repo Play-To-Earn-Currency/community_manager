@@ -2,11 +2,21 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
-export default function () {
+function isSafePath(path) {
+    const safePathRegex = /^(?!.*\.\.)[a-zA-Z0-9_\-./]+$/;
+    return safePathRegex.test(path);
+}
+
+export default function (configPath = "./configs.txt") {
     try {
+        if (!isSafePath(configPath)) {
+            console.warn("[Config] Unsafe path: " + configPath);
+            return null
+        }
+
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = dirname(__filename);
-        const fullPath = resolve(__dirname, "../configs.txt");
+        const fullPath = resolve(__dirname, "../", configPath);
         const data = readFileSync(fullPath, 'utf-8');
         const config = {};
 

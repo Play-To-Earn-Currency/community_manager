@@ -3,9 +3,11 @@ import EstimateGasPTENFT from "./estimate-gas-communitynft.js"
 import Configs from "./configs-loader.js";
 import GetNftData from "./get-nft-data.js";
 import OwnerOf from "./owner-of.js";
-const configs = Configs();
+const defaultConfigs = Configs();
 
-async function burnNFT(nftId) {
+async function burnNFT(nftId, additionalConfigs = {}) {
+    const configs = { ...defaultConfigs, ...additionalConfigs };
+
     try {
         console.log("[COMMUNITY NFT] Generating gas...");
         let estimatedGas = await EstimateGasPTENFT("burnNFT", nftId);
@@ -62,25 +64,27 @@ async function burnNFT(nftId) {
     }
 }
 
-export default async function (nftId, readline) {
+export default async function (nftId, readline, additionalConfigs = {}) {
+    const configs = { ...defaultConfigs, ...additionalConfigs };
+
     return new Promise(async (resolve, _) => {
         try {
-            const ownerAddress = await OwnerOf(nftId);
+            const ownerAddress = await OwnerOf(nftId, additionalConfigs);
             if (ownerAddress != new ethers.Wallet(configs["wallet_private_key"]).address) {
                 console.log("You are not the owner of this NFT...");
                 resolve();
             }
 
             if (readline != undefined) {
-                const nftData = await GetNftData(nftId);
+                const nftData = await GetNftData(nftId, additionalConfigs);
                 console.log(`You are about to burn the nft: ${nftData}`);
                 readline.question("Are you sure? (yes/no/noapprove): ", async (answer) => {
-                    if (answer.toLowerCase() == "yes") await burnNFT(nftId);
+                    if (answer.toLowerCase() == "yes") await burnNFT(nftId, additionalConfigs);
                     else console.log("Operation cancelled");
                     resolve();
                 });
             }
-            else await burnNFT(nftId);
+            else await burnNFT(nftId, additionalConfigs);
         } catch (error) {
             console.log("[COMMUNITY NFT] ERROR: cannot burn the nft, reason: ");
             console.log(error);

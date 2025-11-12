@@ -1,12 +1,14 @@
 import { ethers } from "ethers";
 import EstimateGasPTENFT from "./estimate-gas-communitynft.js"
 import Configs from "./configs-loader.js";
-const configs = Configs();
+const defaultConfigs = Configs();
 
-export default async function (rarity) {
+export default async function (rarity, additionalConfigs = {}) {
+    const configs = { ...defaultConfigs, ...additionalConfigs };
+
     try {
         console.log("[COMMUNITY NFT] Generating gas...");
-        let estimatedGas = await EstimateGasPTENFT("increaseTokenCount", [rarity]);
+        let estimatedGas = await EstimateGasPTENFT("increaseTokenCount", [rarity], additionalConfigs);
         if (estimatedGas == -1) return false;
 
         console.log("[COMMUNITY NFT] Estimated gas: " + estimatedGas + ", running increaseTokenCount action...");

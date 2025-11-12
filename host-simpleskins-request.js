@@ -5,6 +5,7 @@ import ownerNfts from "./libs/owner-nfts.js";
 import ownerOf from "./libs/owner-of.js";
 import getNftData from "./libs/get-nft-data.js";
 
+const lettersAndNumbersRegex = /^[a-zA-Z0-9]+$/;
 const configs = Configs();
 
 let connection;
@@ -28,11 +29,11 @@ function handleDisconnect() {
     connection.on('error', err => {
         if (err.code === 'PROTOCOL_CONNECTION_LOST') {
             console.warn('[SIMPLESKINS] Database connection lost. Reconnecting...');
-            handleDisconnect();
+            setTimeout(handleDisconnect, 2000);
         } else {
             console.error(err);
             console.error('[SIMPLESKINS] Database unkown error. Reconnecting...');
-            handleDisconnect();
+            setTimeout(handleDisconnect, 2000);
         }
     });
 }
@@ -152,8 +153,14 @@ const server = http.createServer(async (req, res) => {
     if (req.url.startsWith('/equippedskin') && req.method === 'GET') {
         try {
             const fromHeader = req.headers['from'];
+            if (!lettersAndNumbersRegex.test(fromHeader)) {
+                res.writeHead(400);
+                res.end("Error: Missing required fields");
+                return;
+            }
+            const fromConfigs = Configs(`./configs/${fromHeader}.txt`);
 
-            if (!fromHeader) {
+            if (!fromHeader || !fromConfigs) {
                 res.writeHead(400);
                 res.end("Error: Missing required fields");
                 return;
@@ -196,7 +203,7 @@ const server = http.createServer(async (req, res) => {
                     return;
                 }
 
-                const ownerWalletAddress = await ownerOf(nftId);
+                const ownerWalletAddress = await ownerOf(nftId, fromConfigs);
 
                 if (walletaddress != ownerWalletAddress) {
                     res.writeHead(403);
@@ -233,8 +240,14 @@ const server = http.createServer(async (req, res) => {
     } else if (req.url.startsWith('/equipskin') && req.method === 'POST') {
         try {
             const fromHeader = req.headers['from'];
+            if (!lettersAndNumbersRegex.test(fromHeader)) {
+                res.writeHead(400);
+                res.end("Error: Missing required fields");
+                return;
+            }
+            const fromConfigs = Configs(`./configs/${fromHeader}.txt`);
 
-            if (!fromHeader) {
+            if (!fromHeader || !fromConfigs) {
                 res.writeHead(400);
                 res.end("Error: Missing required fields");
                 return;
@@ -297,10 +310,10 @@ const server = http.createServer(async (req, res) => {
                             return;
                         }
 
-                        const nftsIds = await ownerNfts(walletaddress);
+                        const nftsIds = await ownerNfts(walletaddress, fromConfigs);
                         for (let i = 0; i < nftsIds.length; i++) {
                             const nftid = nftsIds[i];
-                            const iterationSkinId = await getNftData(nftid);
+                            const iterationSkinId = await getNftData(nftid, fromConfigs);
                             if (iterationSkinId == skinid) {
                                 if (await equipSkin(tableName, uniqueid, nftid, skinid, walletaddress)) {
                                     res.writeHead(200);
@@ -351,8 +364,14 @@ const server = http.createServer(async (req, res) => {
     } else if (req.url.startsWith('/availableskins') && req.method === 'GET') {
         try {
             const fromHeader = req.headers['from'];
+            if (!lettersAndNumbersRegex.test(fromHeader)) {
+                res.writeHead(400);
+                res.end("Error: Missing required fields");
+                return;
+            }
+            const fromConfigs = Configs(`./configs/${fromHeader}.txt`);
 
-            if (!fromHeader) {
+            if (!fromHeader || !fromConfigs) {
                 res.writeHead(400);
                 res.end("Error: Missing required fields");
                 return;
@@ -391,11 +410,11 @@ const server = http.createServer(async (req, res) => {
                     return;
                 }
 
-                const nftsIds = await ownerNfts(walletaddress);
+                const nftsIds = await ownerNfts(walletaddress, fromConfigs);
                 const availableSkins = [];
                 for (let i = 0; i < nftsIds.length; i++) {
                     const nftid = nftsIds[i];
-                    const iterationSkinId = await getNftData(nftid);
+                    const iterationSkinId = await getNftData(nftid, fromConfigs);
                     if (availableSkins.includes(iterationSkinId)) continue;
                     else availableSkins.push(iterationSkinId);
                 }

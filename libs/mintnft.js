@@ -3,9 +3,11 @@ import EstimateGasPTENFT from "./estimate-gas-communitynft.js"
 import Configs from "./configs-loader.js";
 import RarityCost from "./rarity-cost.js"
 import ApprovePTE from "./pte_manager/libs/pte-approve.js"
-const configs = Configs();
+const defaultConfigs = Configs();
 
-async function mintNFT(cost, rarity, ignoreApprove = false) {
+async function mintNFT(cost, rarity, ignoreApprove = false, additionalConfigs = {}) {
+    const configs = { ...defaultConfigs, ...additionalConfigs };
+
     try {
         const contractAddress = configs["contract_address"];
 
@@ -15,7 +17,7 @@ async function mintNFT(cost, rarity, ignoreApprove = false) {
         }
 
         console.log("[COMMUNITY NFT] Generating gas...");
-        let estimatedGas = await EstimateGasPTENFT("mintNFT", rarity);
+        let estimatedGas = await EstimateGasPTENFT("mintNFT", rarity, additionalConfigs);
         if (estimatedGas == -1) return false;
 
         console.log("[COMMUNITY NFT] Estimated gas: " + estimatedGas + ", running mintNFT action...");
@@ -75,21 +77,23 @@ async function mintNFT(cost, rarity, ignoreApprove = false) {
     }
 }
 
-export default async function (rarity, readline, ignoreApprove = false) {
+export default async function (rarity, readline, ignoreApprove = false, additionalConfigs = {}) {
+    const configs = { ...defaultConfigs, ...additionalConfigs };
+
     return new Promise(async (resolve, _) => {
         try {
-            const cost = await RarityCost(rarity);
+            const cost = await RarityCost(rarity, additionalConfigs);
             console.log(`The cost to mint is: ${ethers.formatEther(cost)} PTE.`);
 
             if (readline != undefined) {
                 readline.question("Are you sure? (yes/no/noapprove): ", async (answer) => {
-                    if (answer.toLowerCase() == "yes") await mintNFT(cost, rarity);
-                    else if (answer.toLowerCase() == "noapprove") await mintNFT(cost, rarity, true);
+                    if (answer.toLowerCase() == "yes") await mintNFT(cost, rarity, additionalConfigs);
+                    else if (answer.toLowerCase() == "noapprove") await mintNFT(cost, rarity, true, additionalConfigs);
                     else console.log("Operation cancelled");
                     resolve();
                 });
             }
-            else await mintNFT(cost, rarity, ignoreApprove);
+            else await mintNFT(cost, rarity, ignoreApprove, additionalConfigs);
         } catch (error) {
             console.log("[COMMUNITY NFT] ERROR: cannot make the transaction, reason: ");
             console.log(error);
